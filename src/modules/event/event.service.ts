@@ -13,12 +13,12 @@ export class EventService {
         data.start = hl;
         const event = await this.prisma.event.create({
             data
-        })
+        });
 
         return event;
     }
 
-    async findAll(){
+    async findAll() {
         return await this.prisma.event.findMany({
             orderBy: {
                 start: "asc"
@@ -27,16 +27,51 @@ export class EventService {
     }
 
     async weekly() {
-        const first = new Date(new Date().setDate(new Date(Date.parse(`${new Date()} GMT+0300`)).getDate() + 1)).toISOString()
-        const last = new Date(new Date().setDate(new Date().getDate() + 8)).toISOString()
         return await this.prisma.event.findMany({
             where: {
                 start: {
-                    gte: first,
-                    lte: last,
-                }
+                    //tomorrow day
+                    gte: new Date(new Date(new Date().setDate(new Date().getDate() + 1)).setHours(0,0,0,0)),
+                    //eighth day
+                    lte: new Date(new Date(new Date().setDate(new Date().getDate() + 8)).setHours(23,59,59,999))
+                }                
+            },
+            orderBy: {
+                start: "asc"
             }
-        })
+        });
+    }
+
+    async monthly() {
+        return await this.prisma.event.findMany({
+            where: {
+                start: {
+                    //first day
+                    gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                    //last day
+                    lte: new Date(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).setHours(23,59,59,999))
+                }
+            },
+            orderBy: {
+                start: "asc"
+            }
+        });
+    }
+
+    async yearly() {
+        return await this.prisma.event.findMany({
+            where: {
+                start: {
+                    //first day
+                    gte: new Date(new Date(new Date().getFullYear(), 0, 1).setHours(0,0,0,0)),
+                    //last day
+                    lte: new Date(new Date(new Date().getFullYear(), 12, 0).setHours(23,59,59,999))
+                }
+            },
+            orderBy: {
+                start: "asc"
+            }
+        });
     }
 
     async update(id: number, data: EventDTO) {
