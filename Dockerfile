@@ -1,3 +1,5 @@
+#https://hackernoon.com/5-steps-for-dockerizing-nestjs-with-prisma
+
 FROM node:18 as build
 WORKDIR /usr/src/app
 COPY package.json .
@@ -7,7 +9,6 @@ COPY . .
 RUN npx prisma generate
 RUN npm run build
 
-#https://hackernoon.com/5-steps-for-dockerizing-nestjs-with-prisma
 FROM node:18-slim
 RUN apt update && apt install libssl-dev dumb-init -y --no-install-recommends
 WORKDIR /usr/src/app
@@ -20,4 +21,5 @@ COPY --chown=node:node --from=build /usr/src/app/node_modules/.prisma/client  ./
 
 ENV NODE_ENV production
 EXPOSE 3000
-CMD ["dumb-init", "node", "dist/src/main"]
+#CMD ["dumb-init", "node", "dist/src/main"]
+CMD ["npm", "run","start:prod"]
